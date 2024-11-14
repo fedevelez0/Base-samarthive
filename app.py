@@ -14,26 +14,29 @@ def on_publish(client, userdata, result):
 client.on_publish = on_publish
 client.connect(broker, port)
 
-# Personalizar la interfaz con CSS para hacer el botón transparente y centrado
+# Personalizar la interfaz con CSS para hacer el botón completamente transparente y bien ubicado
 st.markdown("""
 <style>
-    .stButton>button {
-        display: inline-block;
-        margin: auto;
-        background-color: transparent;
-        border-color: transparent;
-        color: transparent;
-        height: 200px;  /* Ajustar según el tamaño de tu imagen */
-        width: 200px;
-    }
     header {visibility: hidden;}
     footer {visibility: hidden;}
-    .reportview-container .main .block-container{
+    .reportview-container .main .block-container {
         padding-top: 5rem;
         padding-bottom: 5rem;
     }
     body {
         background-color: #004D40;
+    }
+    .stButton>button {
+        display: block;
+        margin: auto;
+        background-color: transparent;
+        border: none;
+        height: 200px;  /* Ajustar según el tamaño de tu imagen */
+        width: 200px;
+        position: absolute;
+        top: 50%;  /* Ajustar si es necesario para centrar */
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -42,7 +45,7 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Mostrar imagen de micrófono y usar como botón
+# Cargar y mostrar la imagen como botón
 image = Image.open('voice_icon.png')
 st.image(image, use_column_width=False)
 if st.button("", key="speak"):
