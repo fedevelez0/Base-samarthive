@@ -27,11 +27,11 @@ st.markdown("""
         background-color: #004D40;
     }
     .stButton>button {
-        display: block;
-        margin: auto;
-        background-color: transparent;
         border: none;
-        color: white;
+        color: transparent;
+        background-color: transparent;
+        height: 100%;
+        width: 100%;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -41,13 +41,19 @@ st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
 # Cargar y mostrar la imagen como botón
-image = Image.open('voice_icon.png')
-if st.button("", key="speak", help="Hablar"):
-    st.write("Esperando comando de voz...")
-    # Aquí debe ir la lógica de reconocimiento de voz que integre con el sistema MQTT
-    # Simulación de respuesta
-    st.write("Comando reconocido: 'prender luz'")
-    client.publish("home/luz", json.dumps({"command": "encender"}))
+image_path = 'voice_icon.png'
+image = Image.open(image_path)
 
-# Añadir otros controles o información según sea necesario
-st.write("Interactúa con la imagen para activar el control de voz.")
+col1, col2, col3 = st.columns([1, 1, 1])
+with col1:
+    st.write("")  # Espacio en blanco
+with col2:
+    st.image(image, use_column_width=True)
+    if st.button("", key="speak", help="Presiona el icono para hablar"):
+        st.write("Esperando comando de voz...")
+        # Aquí debes integrar tu lógica de reconocimiento de voz
+        st.write("Reconocimiento de voz activado")
+        # Simular un comando recibido y enviarlo via MQTT
+        client.publish("home/control", json.dumps({"command": "toggle_light"}))
+with col3:
+    st.write("")  # Espacio en blanco
