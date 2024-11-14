@@ -1,13 +1,10 @@
 import streamlit as st
 from streamlit_bokeh_events import streamlit_bokeh_events
 from bokeh.models import CustomJS, Button
-from PIL import Image
 import paho.mqtt.client as paho
 import json
-import os
-import time
 
-# Establecer cliente MQTT
+# Configuración del cliente MQTT
 broker = "broker.hivemq.com"
 port = 1883
 client = paho.Client("Controlador")
@@ -15,7 +12,6 @@ def on_publish(client, userdata, result):
     print("Data published \n")
     pass
 
-# Configurar conexión
 client.on_publish = on_publish
 client.connect(broker, port)
 
@@ -23,26 +19,22 @@ client.connect(broker, port)
 st.markdown("""
 <style>
     .stButton>button {
-        color: white;
+        color: black; /* Cambia el color del texto a negro */
         border: none;
         border-radius: 50%;
         height: 100px;
         width: 100px;
         font-size: 16px;
         font-weight: bold;
-        background-color: #FFA500;
+        background-color: white; /* Fondo blanco para el botón */
+        margin: auto; /* Centrar el botón */
+        display: block;
     }
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .reportview-container .main .block-container{
         padding-top: 5rem;
         padding-bottom: 5rem;
-    }
-    .css-18e3th9 {
-        padding-top: 3.5rem;
-        padding-right: 1rem;
-        padding-bottom: 3.5rem;
-        padding-left: 1rem;
     }
     body {
         background-color: #004D40;
@@ -54,17 +46,13 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Mostrar imagen de micrófono
-image = Image.open('voice_icon.png')  # Asegúrate de tener esta imagen en tu directorio
-st.image(image, width=100, use_column_width=False)
-
 # Botones para acciones
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("Luz"):
+    if st.button("Luz", key='luz'):
         client.publish("home/luz", json.dumps({"command": "toggle_luz"}))
 with col2:
-    if st.button("Acceso"):
+    if st.button("Acceso", key='acceso'):
         client.publish("home/acceso", json.dumps({"command": "toggle_acceso"}))
 
 # Inicializar el reconocimiento de voz
