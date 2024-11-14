@@ -5,10 +5,6 @@ from PIL import Image
 import paho.mqtt.client as paho
 import json
 import os
-
-TENGO ESTE CODIGO, NECESITO QUE EL BOTON DE HABLAR LO PERSONALIZES Y QUEDE COMO UN BOTON DE MICROFONO
-
-
 import time
 
 # Establecer cliente MQTT
