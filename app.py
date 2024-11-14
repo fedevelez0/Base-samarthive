@@ -14,29 +14,27 @@ def on_publish(client, userdata, result):
 client.on_publish = on_publish
 client.connect(broker, port)
 
-# Personalizar la interfaz con CSS para hacer el botón completamente transparente y bien ubicado
+# Personalizar la interfaz con CSS
 st.markdown("""
 <style>
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .reportview-container .main .block-container {
-        padding-top: 5rem;
-        padding-bottom: 5rem;
+        padding: 5rem 1rem;
     }
     body {
         background-color: #004D40;
     }
     .stButton>button {
         display: block;
-        margin: auto;
+        margin: 1rem auto;
         background-color: transparent;
         border: none;
-        height: 200px;  /* Ajustar según el tamaño de tu imagen */
-        width: 200px;
-        position: absolute;
-        top: 50%;  /* Ajustar si es necesario para centrar */
-        left: 50%;
-        transform: translate(-50%, -50%);
+        color: transparent;
+        height: 100px;
+        width: 100px;
+        position: relative;
+        top: -120px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -45,12 +43,15 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Cargar y mostrar la imagen como botón
+# Mostrar imagen de micrófono y usar como botón
 image = Image.open('voice_icon.png')
-st.image(image, use_column_width=False)
+st.image(image, width=100, use_column_width=True)
+
+# Botón transparente
 if st.button("", key="speak"):
     st.write("Esperando comando de voz...")
-    # Simular la recepción de un comando (integrar lógica de reconocimiento de voz real aquí)
-    command = "prender luz"
+    # Aquí deberías integrar la lógica de reconocimiento de voz real
+    # Simulación de respuesta
+    command = "prender luz"  # Simulación de un comando de voz recibido
     st.write(f"Comando recibido: {command}")
     client.publish("home/luz", json.dumps({"command": "encender"}))
