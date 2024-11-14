@@ -25,19 +25,20 @@ st.markdown("""
         padding-bottom: 5rem;
     }
     body {
-        background-color: #004D40;
+        background-color: #004D40; /* Cambia el color de fondo a uno más oscuro adecuado */
     }
     .stButton>button {
-        color: white;
-        border: none;
-        border-radius: 50%;
-        height: 100px;
-        width: 100px;
+        color: white; /* Color de texto */
+        border: 2px solid white; /* Borde blanco */
+        border-radius: 30px; /* Bordes redondeados */
+        height: 50px;
+        width: 150px;
         font-size: 16px;
         font-weight: bold;
-        background-color: #c6ab7c; /* Nuevo color para todos los botones */
+        text-transform: uppercase; /* Texto en mayúsculas */
+        background-color: transparent; /* Fondo transparente */
         display: block;
-        margin: auto;
+        margin: 10px auto;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -47,7 +48,7 @@ st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
 # Botones para acciones
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns([1,1,2]) # Ajusta la proporción para centrar los botones
 with col1:
     if st.button("Luz"):
         client.publish("home/luz", json.dumps({"command": "toggle_luz"}))
