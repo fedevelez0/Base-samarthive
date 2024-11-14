@@ -48,7 +48,7 @@ st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
 # Botones para acciones
-col1, col2, col3 = st.columns([1,1,2])  # Ajuste para centrar los botones
+col1, col2, col3 = st.columns([1, 1, 1])  # Ajuste para centrar los botones
 with col1:
     if st.button("Luz"):
         client.publish("home/luz", json.dumps({"command": "toggle_luz"}))
@@ -56,9 +56,35 @@ with col2:
     if st.button("Acceso"):
         client.publish("home/acceso", json.dumps({"command": "toggle_acceso"}))
 
-# Inicializar el reconocimiento de voz con el mismo estilo de botón
-if st.button("Hablar"):
-    st.write("Esperando comando de voz...")
-    # Simulación de recepción de comando (implementar la lógica real aquí)
+# Botón de "Hablar" con funcionalidad de reconocimiento de voz
+stt_button = Button(label="Hablar", width=150)
+stt_button.js_on_event("button_click", CustomJS(code="""
+    var recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = function (event) {
+        var last = event.results.length - 1;
+        var command = event.results[last][0].transcript.trim();
+        document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
+    };
+    recognition.start();
+"""))
 
-# Aquí iría la lógica para el reconocimiento de voz si se utiliza alguna biblioteca específica o integración con servicios externos
+# Mostrar el botón "Hablar" y activar la funcionalidad de voz
+result = streamlit_bokeh_events(
+    stt_button,
+    events="GET_TEXT",
+    key="listen",
+    refresh_on_update=False,
+    override_height=75,
+    debounce_time=0)
+
+# Procesar comandos de voz recibidos
+if result:
+    if "GET_TEXT" in result:
+        command = result.get("GET_TEXT")
+        st.write(f"Comando recibido: {command}")
+        if "prender luz" in command.lower():
+            client.publish("home/luz", json.dumps({"command": "encender"}))
+        elif "abrir puerta" in command.lower():
+            client.publish("home/acceso", json.dumps({"command": "abrir"}))
