@@ -19,7 +19,7 @@ st.markdown("""
 <style>
     header {visibility: hidden;}
     footer {visibility: hidden;}
-    .reportview-container .main .block-container{
+    .reportview-container .main .block-container {
         padding-top: 5rem;
         padding-bottom: 5rem;
     }
@@ -27,17 +27,14 @@ st.markdown("""
         background-color: #004D40;
     }
     .stButton>button {
-        color: white;
+        display: block;
+        margin: auto;
+        background: url('voice_icon.png') no-repeat center center; /* Asegúrate de que 'voice_icon.png' es el archivo correcto y está en el directorio adecuado */
         border: none;
-        border-radius: 50%;
+        color: transparent; /* Hace el texto invisible */
         height: 100px;
         width: 100px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #FFA500;  /* Cambiar si es necesario para coincidir con el icono del micrófono */
-        background-image: url('data:image/png;base64,<BASE64_IMAGE>'); /* Agrega aquí la imagen del micrófono en formato base64 */
-        background-size: cover;
-        background-position: center;
+        cursor: pointer;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -46,17 +43,15 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Mostrar imagen de micrófono como icono decorativo
-image_path = 'voice_icon.png'
-image = Image.open(image_path)
-st.image(image, width=100, use_column_width=False)
-
-# Botón de hablar personalizado como micrófono
-if st.button("", key="mic"):
+# Botón que activa el reconocimiento de voz
+if st.button("", key="speak"):
     st.write("Esperando comando de voz...")
-    # Lógica de reconocimiento de voz aquí
+    # Simula la recepción de un comando (integrar lógica de reconocimiento de voz real aquí)
+    command = "prender luz"
+    st.write(f"Comando recibido: {command}")
+    client.publish("home/luz", json.dumps({"command": "encender"}))
 
-# Columnas para otros botones
+# Otros botones como luz y acceso, si son necesarios
 col1, col2 = st.columns(2)
 with col1:
     if st.button("Luz"):
