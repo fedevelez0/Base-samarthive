@@ -48,10 +48,6 @@ st.markdown("""
 image = Image.open('fotocasa.png')
 st.image(image, use_column_width=True)
 
-# Título y subtítulo
-st.title("Smarthive Home")
-st.subheader("Control por Voz")
-
 # Botones para acciones
 col1, col2, col3 = st.columns([1, 1, 1])  # Ajuste para centrar los botones
 with col1:
