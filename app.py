@@ -1,10 +1,9 @@
 import streamlit as st
 from streamlit_bokeh_events import streamlit_bokeh_events
-from bokeh.models import CustomJS
+from bokeh.models import CustomJS, Button
 from PIL import Image
 import paho.mqtt.client as paho
 import json
-import os
 
 # Establecer cliente MQTT
 broker = "broker.hivemq.com"
@@ -37,41 +36,38 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Cargar imagen y usar como botón
+# Cargar y mostrar la imagen
 image = Image.open('voice_icon.png')
+st.image(image, width=100, use_column_width=False)
 
-# Mostrar imagen como botón
-clicked = st.image(image, use_column_width=False, on_click=None, caption='Hablar')
+# Botón para activar el reconocimiento de voz
+if st.button("Hablar"):
+    st.write("Esperando comando de voz...")
+    result = streamlit_bokeh_events(
+        Button(label="Hablar", width=100),
+        events="GET_TEXT",
+        key="listen",
+        refresh_on_update=False,
+        override_height=75,
+        debounce_time=0,
+        js_code="""
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onresult = function (event) {
+            var last = event.results.length - 1;
+            var command = event.results[last][0].transcript.trim();
+            document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
+        };
+        recognition.start();
+        """
+    )
 
-# Inicializar el reconocimiento de voz
-stt_button = st.empty()  # Crear un espacio vacío para el botón
-stt_button.image(image, width=100, on_click=lambda: streamlit_bokeh_events(
-    CustomJS(code="""
-    var recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onresult = function (event) {
-        var last = event.results.length - 1;
-        var command = event.results[last][0].transcript.trim();
-        document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
-    };
-    recognition.start();
-    """),
-    events="GET_TEXT",
-    key="listen",
-    refresh_on_update=False,
-    override_height=75,
-    debounce_time=0))
-
-# Procesar comandos de voz
-if clicked:
-    result = st.session_state['listen']
-    if result:
-        if "GET_TEXT" in result:
-            command = result.get("GET_TEXT")
-            st.write(f"Comando recibido: {command}")
-            if "prender luz" in command.lower():
-                client.publish("home/luz", json.dumps({"command": "encender"}))
-            elif "abrir puerta" in command.lower():
-                client.publish("home/acceso", json.dumps({"command": "abrir"}))
-
+    # Procesar el comando de voz
+    if result and "GET_TEXT" in result:
+        command = result["GET_TEXT"]
+        st.write(f"Comando recibido: {command}")
+        if "prender luz" in command.lower():
+            client.publish("home/luz", json.dumps({"command": "encender"}))
+        elif "abrir puerta" in command.lower():
+            client.publish("home/acceso", json.dumps({"command": "abrir"}))
