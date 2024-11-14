@@ -1,6 +1,4 @@
 import streamlit as st
-from streamlit_bokeh_events import streamlit_bokeh_events
-from bokeh.models import CustomJS, Button
 import paho.mqtt.client as paho
 import json
 
@@ -56,35 +54,46 @@ with col2:
     if st.button("Acceso"):
         client.publish("home/acceso", json.dumps({"command": "toggle_acceso"}))
 
-# Botón de "Hablar" con funcionalidad de reconocimiento de voz
-stt_button = Button(label="Hablar", width=150)
-stt_button.js_on_event("button_click", CustomJS(code="""
-    var recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onresult = function (event) {
-        var last = event.results.length - 1;
-        var command = event.results[last][0].transcript.trim();
-        document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
-    };
-    recognition.start();
-"""))
+# Botón de "Hablar" con reconocimiento de voz usando JavaScript
+st.markdown("""
+    <button onclick="startRecognition()" style="
+        color: white;
+        border: 2px solid white;
+        border-radius: 30px;
+        height: 50px;
+        width: 150px;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        background-color: transparent;
+        display: block;
+        margin: 10px auto;
+    ">Hablar</button>
 
-# Mostrar el botón "Hablar" y activar la funcionalidad de voz
-result = streamlit_bokeh_events(
-    stt_button,
-    events="GET_TEXT",
-    key="listen",
-    refresh_on_update=False,
-    override_height=75,
-    debounce_time=0)
+    <script type="text/javascript">
+        function startRecognition() {
+            var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'es-ES';
+            recognition.continuous = false;
+            recognition.interimResults = false;
 
-# Procesar comandos de voz recibidos
-if result:
-    if "GET_TEXT" in result:
-        command = result.get("GET_TEXT")
-        st.write(f"Comando recibido: {command}")
-        if "prender luz" in command.lower():
-            client.publish("home/luz", json.dumps({"command": "encender"}))
-        elif "abrir puerta" in command.lower():
-            client.publish("home/acceso", json.dumps({"command": "abrir"}))
+            recognition.onresult = function(event) {
+                var command = event.results[0][0].transcript;
+                console.log("Comando recibido:", command);
+                var streamlitEvent = new CustomEvent("streamlit-event", {detail: {command: command}});
+                document.dispatchEvent(streamlitEvent);
+            };
+            recognition.start();
+        }
+    </script>
+""", unsafe_allow_html=True)
+
+# Captura del comando de voz recibido
+st.write("Comando recibido:")
+command = st.experimental_get_query_params().get("command", [""])[0]
+if command:
+    st.write(f"Comando: {command}")
+    if "prender luz" in command.lower():
+        client.publish("home/luz", json.dumps({"command": "encender"}))
+    elif "abrir puerta" in command.lower():
+        client.publish("home/acceso", json.dumps({"command": "abrir"}))
