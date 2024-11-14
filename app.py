@@ -1,13 +1,9 @@
 import streamlit as st
-from streamlit_bokeh_events import streamlit_bokeh_events
-from bokeh.models import CustomJS, Button
 from PIL import Image
 import paho.mqtt.client as paho
 import json
-import os
-import time
 
-# Establecer cliente MQTT
+# Configuración del cliente MQTT
 broker = "broker.hivemq.com"
 port = 1883
 client = paho.Client("Controlador")
@@ -15,7 +11,6 @@ def on_publish(client, userdata, result):
     print("Data published \n")
     pass
 
-# Configurar conexión
 client.on_publish = on_publish
 client.connect(broker, port)
 
@@ -23,26 +18,15 @@ client.connect(broker, port)
 st.markdown("""
 <style>
     .stButton>button {
-        color: white;
-        border: none;
-        border-radius: 50%;
-        height: 100px;
-        width: 100px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #FFA500;
+        visibility: hidden;  /* Hace el botón completamente invisible */
+        height: 100%;
+        width: 100%;
     }
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .reportview-container .main .block-container{
         padding-top: 5rem;
         padding-bottom: 5rem;
-    }
-    .css-18e3th9 {
-        padding-top: 3.5rem;
-        padding-right: 1rem;
-        padding-bottom: 3.5rem;
-        padding-left: 1rem;
     }
     body {
         background-color: #004D40;
@@ -54,22 +38,14 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Mostrar imagen de micrófono
-image = Image.open('voice_icon.png')  # Asegúrate de tener esta imagen en tu directorio
-st.image(image, width=100, use_column_width=False)
+# Mostrar imagen de micrófono como botón
+image = Image.open('voice_icon.png')
+if st.button("", key="speak"):
+    st.write("Esperando comando de voz...")
 
-# Botones para acciones
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("Luz"):
-        client.publish("home/luz", json.dumps({"command": "toggle_luz"}))
-with col2:
-    if st.button("Acceso"):
-        client.publish("home/acceso", json.dumps({"command": "toggle_acceso"}))
-
-# Inicializar el reconocimiento de voz
-stt_button = Button(label="Hablar", width=100)
-stt_button.js_on_event("button_click", CustomJS(code="""
+# Inicializar el reconocimiento de voz usando Bokeh para manejar eventos JS
+from bokeh.models import CustomJS
+stt_button = CustomJS(code="""
     var recognition = new webkitSpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -79,23 +55,17 @@ stt_button.js_on_event("button_click", CustomJS(code="""
         document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
     };
     recognition.start();
-"""))
+""")
 
-# Manejar eventos de voz
-result = streamlit_bokeh_events(
-    stt_button,
-    events="GET_TEXT",
-    key="listen",
-    refresh_on_update=False,
-    override_height=75,
-    debounce_time=0)
+# Mostrar el botón invisible y manejar eventos de voz
+if st.button("Hablar", key="listen", on_click=stt_button):
+    pass  # El botón es invisible y se activa el JS para el reconocimiento de voz
 
 # Procesar comandos de voz
-if result:
-    if "GET_TEXT" in result:
-        command = result.get("GET_TEXT")
-        st.write(f"Comando recibido: {command}")
-        if "prender luz" in command.lower():
-            client.publish("home/luz", json.dumps({"command": "encender"}))
-        elif "abrir puerta" in command.lower():
-            client.publish("home/acceso", json.dumps({"command": "abrir"}))
+if "GET_TEXT" in st.session_state:
+    command = st.session_state["GET_TEXT"]
+    st.write(f"Comando recibido: {command}")
+    if "prender luz" in command.lower():
+        client.publish("home/luz", json.dumps({"command": "encender"}))
+    elif "abrir puerta" in command.lower():
+        client.publish("home/acceso", json.dumps({"command": "abrir"}))
