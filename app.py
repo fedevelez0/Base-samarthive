@@ -3,6 +3,7 @@ from streamlit_bokeh_events import streamlit_bokeh_events
 from bokeh.models import CustomJS, Button
 import paho.mqtt.client as paho
 import json
+from PIL import Image
 
 # Configuración del cliente MQTT
 broker = "broker.hivemq.com"
@@ -42,6 +43,10 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+# Cargar y mostrar la imagen de la casa al principio
+image = Image.open('fotocasa.png')
+st.image(image, use_column_width=True)
 
 # Título y subtítulo
 st.title("Smarthive Home")
