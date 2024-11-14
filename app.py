@@ -14,13 +14,17 @@ def on_publish(client, userdata, result):
 client.on_publish = on_publish
 client.connect(broker, port)
 
-# Personalizar la interfaz con CSS
+# Personalizar la interfaz con CSS para hacer el botón transparente y centrado
 st.markdown("""
 <style>
     .stButton>button {
-        visibility: hidden;  /* Hace el botón completamente invisible */
-        height: 100%;
-        width: 100%;
+        display: inline-block;
+        margin: auto;
+        background-color: transparent;
+        border-color: transparent;
+        color: transparent;
+        height: 200px;  /* Ajustar según el tamaño de tu imagen */
+        width: 200px;
     }
     header {visibility: hidden;}
     footer {visibility: hidden;}
@@ -38,34 +42,12 @@ st.markdown("""
 st.title("Smarthive Home")
 st.subheader("Control por Voz")
 
-# Mostrar imagen de micrófono como botón
+# Mostrar imagen de micrófono y usar como botón
 image = Image.open('voice_icon.png')
+st.image(image, use_column_width=False)
 if st.button("", key="speak"):
     st.write("Esperando comando de voz...")
-
-# Inicializar el reconocimiento de voz usando Bokeh para manejar eventos JS
-from bokeh.models import CustomJS
-stt_button = CustomJS(code="""
-    var recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onresult = function (event) {
-        var last = event.results.length - 1;
-        var command = event.results[last][0].transcript.trim();
-        document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: command}));
-    };
-    recognition.start();
-""")
-
-# Mostrar el botón invisible y manejar eventos de voz
-if st.button("Hablar", key="listen", on_click=stt_button):
-    pass  # El botón es invisible y se activa el JS para el reconocimiento de voz
-
-# Procesar comandos de voz
-if "GET_TEXT" in st.session_state:
-    command = st.session_state["GET_TEXT"]
+    # Simular la recepción de un comando (integrar lógica de reconocimiento de voz real aquí)
+    command = "prender luz"
     st.write(f"Comando recibido: {command}")
-    if "prender luz" in command.lower():
-        client.publish("home/luz", json.dumps({"command": "encender"}))
-    elif "abrir puerta" in command.lower():
-        client.publish("home/acceso", json.dumps({"command": "abrir"}))
+    client.publish("home/luz", json.dumps({"command": "encender"}))
