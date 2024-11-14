@@ -18,18 +18,6 @@ client.connect(broker, port)
 # Personalizar la interfaz con CSS
 st.markdown("""
 <style>
-    .stButton>button {
-        color: black; /* Cambia el color del texto a negro */
-        border: none;
-        border-radius: 50%;
-        height: 100px;
-        width: 100px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: white; /* Fondo blanco para el botón */
-        margin: auto; /* Centrar el botón */
-        display: block;
-    }
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .reportview-container .main .block-container{
@@ -38,6 +26,18 @@ st.markdown("""
     }
     body {
         background-color: #004D40;
+    }
+    .stButton>button {
+        color: white;
+        border: none;
+        border-radius: 50%;
+        height: 100px;
+        width: 100px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #c6ab7c; /* Nuevo color para todos los botones */
+        display: block;
+        margin: auto;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -49,10 +49,10 @@ st.subheader("Control por Voz")
 # Botones para acciones
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("Luz", key='luz'):
+    if st.button("Luz"):
         client.publish("home/luz", json.dumps({"command": "toggle_luz"}))
 with col2:
-    if st.button("Acceso", key='acceso'):
+    if st.button("Acceso"):
         client.publish("home/acceso", json.dumps({"command": "toggle_acceso"}))
 
 # Inicializar el reconocimiento de voz
