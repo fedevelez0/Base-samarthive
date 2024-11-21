@@ -6,7 +6,7 @@ import json
 from PIL import Image
 
 # Configuración del cliente MQTT
-broker = "broker.emqx.io"
+broker = "157.230.214.127"
 port = 1883
 client = paho.Client("Controlador")
 def on_publish(client, userdata, result):
