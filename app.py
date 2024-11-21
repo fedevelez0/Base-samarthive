@@ -81,11 +81,18 @@ result = streamlit_bokeh_events(
     debounce_time=0)
 
 # Procesar comandos de voz recibidos
+
+
 if result:
     if "GET_TEXT" in result:
-        command = result.get("GET_TEXT")
-        st.write(f"Comando recibido: {command}")
-        if "prender luz" in command.lower():
-            client.publish("home/luz", json.dumps({"command": "encender"}))
-        elif "abrir puerta" in command.lower():
-            client.publish("home/acceso", json.dumps({"command": "abrir"}))
+        st.write(result.get("GET_TEXT"))
+        client1.on_publish = on_publish                            
+        client1.connect(broker,port)  
+        message =json.dumps({"Act1":result.get("GET_TEXT").strip()})
+        ret= client1.publish("CanoControl", message)
+
+    
+    try:
+        os.mkdir("temp")
+    except:
+        pass
